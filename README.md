@@ -2,7 +2,7 @@
 
 ## Folder Structure
 
-Keep **laravel project** folders inside this project folder
+Keep **laravel project** folders in this docgen folder. 
 
  **e.g**
  ```sh
