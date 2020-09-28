@@ -1,0 +1,20 @@
+{
+  "name": "docgen",
+  "version": "1.0.0",
+  "description": "Laravel comment block to documentation",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node gen.js"
+  },
+  "keywords": [
+    "php",
+    "comment",
+    "documentation"
+  ],
+  "author": "Ronald Aug",
+  "license": "MIT",
+  "dependencies": {
+    "fs-extra": "^9.0.1"
+  }
+}
