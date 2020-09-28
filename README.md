@@ -2,11 +2,13 @@
 
 ## Folder Structure
 
-Keep **laravel project** folder inside this project folder
+Keep **laravel project** folders inside this project folder
 
  **e.g**
  ```sh
-    - laravel-project
+    - laravel-project1
+    - laravel-project2
+    - laravel-project3
     - gen.js
     - package.json
     - README.md
