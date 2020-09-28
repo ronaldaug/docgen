@@ -32,5 +32,5 @@ It will prompt up and ask directory names in terminal. Answer the question and w
 ----------
 
 ## Get HTML format documentation
-To generate Markdown files from `dist` to HTML format documentation,
+To generate Markdown files inside `dist` folder to HTML format documentation,
 Please use this repo [https://github.com/ronaldaug/md-to-doc](https://github.com/ronaldaug/md-to-doc)
