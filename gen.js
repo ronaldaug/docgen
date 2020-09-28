@@ -1,4 +1,5 @@
 const fs = require('fs');
+const lineNumber = require('line-number');
 const path = require("path");
 const fse = require('fs-extra');
 const { stdin, stdout } = process;
@@ -43,8 +44,20 @@ const generateMD = async (folderPath)=>{
 
       const allFiles = await readFileContents(folderPath);
 
+      const classPattern = new RegExp(`class\\s.*`,"gm");
       const commentPattern = new RegExp(`\\/\\/?\\s*\\*[\\s\\S]*?\\*\\s*\\/\\/?`,"gm");
-      const funcPattern =  new RegExp(`(public|protected|private).*?\\).*?\\s*{`,"gm");
+      const funcPattern =  new RegExp(`(public|protected|private)\\s.*function\\s.*`,"gm");
+
+      const classes = [];
+      allFiles.forEach(eachFile=>{
+        const eachData = eachFile.data?eachFile.data.match(classPattern):'';
+        const data = {
+            name:eachFile.filename,
+            class:eachData
+        }
+        classes.push(data);
+      })
+
       const comments = [];
       allFiles.forEach(eachFile=>{
         const eachData = eachFile.data?eachFile.data.match(commentPattern):'';
@@ -57,7 +70,7 @@ const generateMD = async (folderPath)=>{
 
       const funcs = [];
       allFiles.forEach(eachFile=>{
-          const eachData = eachFile.data?eachFile.data.match(funcPattern):'';
+          const eachData = eachFile.data?lineNumber(eachFile.data,funcPattern):'';
           const data = {
               name:eachFile.filename,
               data:eachData
@@ -66,7 +79,14 @@ const generateMD = async (folderPath)=>{
       })
 
       const doc = [];
+
       comments.forEach((c,i)=>{
+
+        let classN = '';
+        if(c.name == classes[i].name){
+           classN = classes[i].class;
+        }
+
         if(c.name == funcs[i].name){
 
             const desc = [];
@@ -84,6 +104,7 @@ const generateMD = async (folderPath)=>{
             }
 
             doc.push({
+                class:classN,
                 name:c.name,
                 data:desc
             })
@@ -91,6 +112,9 @@ const generateMD = async (folderPath)=>{
       })
 
       const removeStar = (s)=>{
+        if(!s.includes("*")){
+          return s;
+        }
         return s.split("*")[1];
       }
 
@@ -101,48 +125,55 @@ const generateMD = async (folderPath)=>{
 
       const getFuncName = (func)=>{
 
-        if(!func){return}
+        if(!Object.keys(func)){return}
 
         let str = '';
         let typ = '';
 
-        if(func.includes("public")){
+        const {match,number} = func;
+
+        const funcName = match.split(" ")[2].split("(")[0];
+
+        if(match.includes("public")){
           typ = 'Public';
-          str = func.replace("public static function ","");
+          str = match.replace("public static function ","");
           str = str.replace("public function ","");
         }
 
-        if(func.includes("protected")){
+        if(match.includes("protected")){
           typ = 'Protected';
-          str = func.replace("protected static function ","");
+          str = match.replace("protected static function ","");
           str = str.replace("protected function ","");
         }
 
-        if(func.includes("private")){
+        if(match.includes("private")){
           typ = 'Private';
-          str = func.replace("private static function ","");
+          str = match.replace("private static function ","");
           str = str.replace("private function ","");
         }
 
         str = str.replace("{","");
-        return `${typ} Method - ${str.trim()}`;
+        return `## ${funcName} \n\n ${typ} Method - ${str.trim()}  [ Line number - **${number}** ]`;
       }
 
       const loopData = (data)=>{
             return data.map(d=>{
-                return `**${getFuncName(d.func)}**\n> ${removeStar(d.head).trim()}\n${loopParams(d.params)}\n----------\n\n`
+                return `${getFuncName(d.func)}\n> ${removeStar(d.head).trim()}\n${loopParams(d.params)}\n----------\n\n`
             }).join("")
       }
 
-      let finalDoc = '';
 
       doc.forEach(d=>{
         if(!d.name){return};
-        finalDoc += `## ${d.name.split("/").pop()}\n`;
+        let finalDoc = '';
+        const filename = d.name.split("/").pop();
+        finalDoc += `# ${d.class?d.class[0].split(" ")[1]:''}\n\n`;
+        finalDoc += `${filename} \n\n`;
         finalDoc += `Path - ${d.name}\n\n`;
         finalDoc += `${loopData(d.data)||'No Comment Block.\n'}\n`;
+        fse.outputFileSync(`dist/${filename.replace(".php","")}.md`, finalDoc);
       })
-      return finalDoc;
+      return 'done!';
 }
 
 /**
@@ -161,16 +192,13 @@ async function askingFolderName() {
 
         // Generate Models
         const ModelfolderPath = projectFolder+'/app/Models';
-        const Modeldocs = await generateMD(ModelfolderPath);
-        fse.outputFileSync("dist/models.md", Modeldocs);
+        const modelData = await generateMD(ModelfolderPath);
 
       }else{
 
         // Generate Controller
         const ControllerfolderPath = projectFolder+'/app/Http/Controllers';
-        const Controllerdocs = await generateMD(ControllerfolderPath);
-        fse.outputFileSync("dist/controllers.md",Controllerdocs);
-
+        const controllerData = await generateMD(ControllerfolderPath);
       }
 
       console.log("Successfully generated!");

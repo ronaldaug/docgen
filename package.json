@@ -15,6 +15,7 @@
   "author": "Ronald Aug",
   "license": "MIT",
   "dependencies": {
-    "fs-extra": "^9.0.1"
+    "fs-extra": "^9.0.1",
+    "line-number": "^0.1.0"
   }
 }
