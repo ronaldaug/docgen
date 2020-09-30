@@ -27,10 +27,12 @@ npm install
 npm run start
 ```
 
-It will prompt up and ask directory names in terminal. Answer the question and will generate a new folder `dist` in the same directory.
+It will ask a few questions before generated.
 
-----------
-
-## Get HTML format documentation
-To generate Markdown files inside `dist` folder to HTML format documentation,
-Please use this repo [https://github.com/ronaldaug/md-to-doc](https://github.com/ronaldaug/md-to-doc)
+1. **Directory Name**
+     - A diretory name of current laravel project.
+2. **Github Repo Link**
+     - If there is a github repo, please provide in the answer. Class methods will show up with a specific line number and link to your repo.
+3. **Model or Controller**
+     - Generate `Models` or `Controllers` directory. 
+     - Why does it generate for both at the same time? Because large task could produce errors. 
