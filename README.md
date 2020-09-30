@@ -25,8 +25,10 @@ Before generating a doc, must have a nice format comment block above each PHP me
      *
      * @param String  $value1
      * @param Boolean $value2
-     * @see https://stackoverflow.com
      * @return Mixed
+     * @see https://stackoverflow.com
+     * @version beta@1.2.0
+     * @author Ronald Aug
      *
      */
 ```
