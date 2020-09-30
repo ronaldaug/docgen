@@ -164,7 +164,7 @@ const generateMD = async (folderPath,codeType,github_url)=>{
               const filename = e.name.split(codeType)[1];
               const fileDir = codeType == 'Controllers'?'app/Http/Controllers':'app/Models';
               const sourceLink = `[${d.func.number}][${github_url}/tree/master/${fileDir}${filename}#L${d.func.number})`;
-              return `${getFuncName(d.func)} \n\n Line number - ${github_url?sourceLink:d.func.number} \n\n > ${removeStar(d.head)?removeStar(d.head).trim():''} \n\n ${loopParams(d.params)} \n----------\n\n`
+              return `${getFuncName(d.func)} \n\nLine number - ${github_url?sourceLink:d.func.number} \n\n> ${removeStar(d.head)?removeStar(d.head).trim():''} \n\n${loopParams(d.params)} \n----------\n\n`
             }).join("")
       }
 
