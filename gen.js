@@ -122,7 +122,35 @@ const generateMD = async (folderPath,codeType,github_url)=>{
       }
 
       const loopParams = (params)=>{
-          return params.map(x=>x.trim()+'\n').join("");
+        let parameters = params.filter(e=>e.includes('@param'));
+        return parameters.map(x=>x.trim()+'\n').join("");
+      }
+
+      const referenceLink = (params)=>{
+        let see = params.filter(e=>e.includes('@see'));
+        if(see.length == 0){
+          return '';
+        }
+        ref = see[0].split(" ").pop();
+        return `➡ [Reference](${ref})\n\n`;
+      }
+
+      const getVersion = (params)=>{
+        let ver = params.filter(e=>e.includes('@version'));
+        if(ver.length == 0){
+          return '';
+        }
+        ver = ver[0].split(" ").pop();
+        return `ⓥ Version - \`${ver}\`\n\n`;
+      }
+
+      const getAuthor = (params)=>{
+        let author = params.filter(e=>e.includes('@author'));
+        if(author.length == 0){
+          return '';
+        }
+        author = author[0].split("@author").pop();
+        return author?`✍Author - \`${author.trim()}\`\n\n`:'';
       }
 
 
@@ -164,7 +192,7 @@ const generateMD = async (folderPath,codeType,github_url)=>{
               const filename = e.name.split(codeType)[1];
               const fileDir = codeType == 'Controllers'?'app/Http/Controllers':'app/Models';
               const sourceLink = `[${d.func.number}][${github_url}/tree/master/${fileDir}${filename}#L${d.func.number})`;
-              return `${getFuncName(d.func)} \n\nLine number - ${github_url?sourceLink:d.func.number} \n\n> ${removeStar(d.head)?removeStar(d.head).trim():''} \n\n${loopParams(d.params)} \n----------\n\n`
+              return `${getFuncName(d.func)} \n\nLine number - ${github_url?sourceLink:d.func.number} \n\n> ${removeStar(d.head)?removeStar(d.head).trim():''} \n\n${loopParams(d.params)} \n\n${referenceLink(d.params)} ${getVersion(d.params)} ${getAuthor(d.params)}----------\n\n`
             }).join("")
       }
 
