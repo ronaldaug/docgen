@@ -15,6 +15,27 @@ Keep **laravel project** folders in this docgen folder.
  ```
 ---------
 
+## Format of Laravel PHP comment blocks
+
+Before generating a doc, must have a nice format comment block above each PHP methods. 
+
+```php
+     /**
+     * Lorem ipsum dolor sit amet, consectetur adipiscing elit. In mattis dictum lorem id bibendum.
+     *
+     * @param String  $value1
+     * @param Boolean $value2
+     * @see https://stackoverflow.com
+     * @return Mixed
+     *
+     */
+```
+
+- The very first line is a description of Class Method.
+- The rest are parameters and return type.
+
+----------
+
 ## Installation
 ```
 npm install
@@ -27,7 +48,7 @@ npm install
 npm run start
 ```
 
-It will ask a few questions before generated.
+It will ask a few questions before generating.
 
 1. **Directory Name**
      - A diretory name of current laravel project.
