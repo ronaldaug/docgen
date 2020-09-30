@@ -40,7 +40,7 @@ function readFileContents(dir) {
     return files;
 }
 
-const generateMD = async (folderPath)=>{
+const generateMD = async (folderPath,codeType,github_url)=>{
 
       const allFiles = await readFileContents(folderPath);
 
@@ -112,9 +112,12 @@ const generateMD = async (folderPath)=>{
       })
 
       const removeStar = (s)=>{
+        if(!s){return}
+
         if(!s.includes("*")){
           return s;
         }
+
         return s.split("*")[1];
       }
 
@@ -130,7 +133,7 @@ const generateMD = async (folderPath)=>{
         let str = '';
         let typ = '';
 
-        const {match,number} = func;
+        const {match} = func;
 
         const funcName = match.split(" ")[2].split("(")[0];
 
@@ -153,12 +156,15 @@ const generateMD = async (folderPath)=>{
         }
 
         str = str.replace("{","");
-        return `## ${funcName} \n\n ${typ} Method - ${str.trim()}  [ Line number - **${number}** ]`;
+        return `## ${funcName} \n\n ${typ} Method - ${str.trim()}`;
       }
 
-      const loopData = (data)=>{
-            return data.map(d=>{
-                return `${getFuncName(d.func)}\n> ${removeStar(d.head).trim()}\n${loopParams(d.params)}\n----------\n\n`
+      const loopData = (e)=>{
+            return e.data.map(d=>{
+              const filename = e.name.split(codeType)[1];
+              const fileDir = codeType == 'Controllers'?'app/Http/Controllers':'app/Models';
+              const sourceLink = `[${d.func.number}][${github_url}/tree/master/${fileDir}${filename}#L${d.func.number})`;
+              return `${getFuncName(d.func)} \n\n Line number - ${github_url?sourceLink:d.func.number} \n\n > ${removeStar(d.head)?removeStar(d.head).trim():''} \n\n ${loopParams(d.params)} \n----------\n\n`
             }).join("")
       }
 
@@ -166,12 +172,12 @@ const generateMD = async (folderPath)=>{
       doc.forEach(d=>{
         if(!d.name){return};
         let finalDoc = '';
-        const filename = d.name.split("/").pop();
+        let filename = d.name.split(codeType)[1];
         finalDoc += `# ${d.class?d.class[0].split(" ")[1]:''}\n\n`;
         finalDoc += `${filename} \n\n`;
         finalDoc += `Path - ${d.name}\n\n`;
-        finalDoc += `${loopData(d.data)||'No Comment Block.\n'}\n`;
-        fse.outputFileSync(`dist/${filename.replace(".php","")}.md`, finalDoc);
+        finalDoc += `${loopData(d)||'No Comment Block.\n'}\n`;
+        fse.outputFileSync(`dist/${codeType}/${filename.replace(".php","")}.md`, finalDoc);
       })
       return 'done!';
 }
@@ -182,7 +188,10 @@ const generateMD = async (folderPath)=>{
 async function askingFolderName() {
     try {
       let projectFolder = await prompt("Project directory name? ");
+      let github_url = await prompt("Does this project has github repo? \n If yes, please provide the link below \n or Skip this with 'enter' key. \n");
       let picked = await prompt("Model or Controller? ");
+
+      github_url = github_url?github_url.replace(".git",""):"";
 
       if(!picked){
          picked = await prompt("Please type 'Model' or 'Controller'");
@@ -192,13 +201,13 @@ async function askingFolderName() {
 
         // Generate Models
         const ModelfolderPath = projectFolder+'/app/Models';
-        const modelData = await generateMD(ModelfolderPath);
+        const modelData = await generateMD(ModelfolderPath,'Models',github_url);
 
       }else{
 
         // Generate Controller
         const ControllerfolderPath = projectFolder+'/app/Http/Controllers';
-        const controllerData = await generateMD(ControllerfolderPath);
+        const controllerData = await generateMD(ControllerfolderPath,'Controllers',github_url);
       }
 
       console.log("Successfully generated!");
